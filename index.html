@@ -3,57 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LUMINA — Intelligence Suite</title>
+    <title>LUMINA — Panel de Control</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --primary: #1a1a1a;
-            --secondary: #8d7b6d;
-            --bg: #f8f9fa;
-            --white: #ffffff;
-            --border: #e9ecef;
-            --text: #334155;
-            --success: #10b981;
-            --transition: all 0.3s ease;
-        }
-
+        :root { --primary: #1a1a1a; --secondary: #8d7b6d; --bg: #f8f9fa; --white: #ffffff; --border: #e9ecef; --text: #334155; --success: #10b981; --danger: #ef4444; }
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); display: flex; min-height: 100vh; overflow: hidden; }
-
-        /* --- LOGIN --- */
         #login-admin { position: fixed; inset: 0; background: var(--white); display: flex; align-items: center; justify-content: center; z-index: 2000; }
         .login-box { width: 320px; text-align: center; }
-        input { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 6px; margin-bottom: 12px; outline: none; }
+        input, textarea { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 6px; margin-bottom: 12px; outline: none; }
         .btn-main { width: 100%; padding: 12px; background: var(--primary); color: white; border: none; border-radius: 6px; cursor: pointer; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 1px; }
-
-        /* --- LAYOUT --- */
         #dashboard { display: none; width: 100%; height: 100vh; }
         aside { width: 260px; background: var(--white); border-right: 1px solid var(--border); padding: 2rem 1.5rem; display: flex; flex-direction: column; }
         main { flex: 1; padding: 2.5rem; overflow-y: auto; height: 100vh; }
-
-        .nav-link { padding: 12px 15px; font-size: 0.85rem; cursor: pointer; color: #64748b; border-radius: 8px; margin-bottom: 5px; transition: var(--transition); }
-        .nav-link:hover { background: #f1f5f9; }
+        .nav-link { padding: 12px 15px; font-size: 0.85rem; cursor: pointer; color: #64748b; border-radius: 8px; margin-bottom: 5px; }
         .nav-link.active { background: var(--primary); color: white; }
-
-        /* --- TABLAS Y REPORTES --- */
-        .view-section { display: none; animation: fadeIn 0.4s ease; }
+        .view-section { display: none; }
         .view-section.active { display: block; }
-
-        .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-bottom: 2rem; }
-        .stat-card { background: white; padding: 1.5rem; border-radius: 12px; border: 1px solid var(--border); }
-        .stat-val { font-size: 1.8rem; font-weight: 600; color: var(--primary); }
-        .stat-label { font-size: 0.7rem; text-transform: uppercase; color: #94a3b8; }
-
-        table { width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden; border: 1px solid var(--border); }
-        th { background: #f8fafc; text-align: left; padding: 15px; font-size: 0.75rem; text-transform: uppercase; color: #64748b; border-bottom: 1px solid var(--border); }
-        td { padding: 15px; font-size: 0.85rem; border-bottom: 1px solid var(--border); }
-
-        /* --- CARDS PEDIDOS --- */
+        table { width: 100%; border-collapse: collapse; background: white; border-radius: 8px; border: 1px solid var(--border); margin-top: 1rem; }
+        th, td { padding: 15px; text-align: left; border-bottom: 1px solid var(--border); font-size: 0.85rem; }
         .orders-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; }
-        .card { background: white; border: 1px solid var(--border); padding: 1.5rem; border-radius: 12px; position: relative; }
-        .badge-stars { position: absolute; top: 10px; right: 10px; color: var(--secondary); font-size: 0.7rem; }
-
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .card { background: white; border: 1px solid var(--border); padding: 1.5rem; border-radius: 12px; }
     </style>
 </head>
 <body>
@@ -70,11 +40,9 @@
         <aside>
             <h2 style="font-family: serif; margin-bottom: 2rem; text-align: center;">Lumina</h2>
             <div id="aside-user" style="font-size: 0.7rem; color: var(--secondary); text-align: center; margin-bottom: 2rem; padding: 10px; background: #f8f9fa; border-radius: 6px;"></div>
-            
             <div class="nav-link active" onclick="app.setView('entrantes', this)">Pedidos Entrantes</div>
-            <div class="nav-link" onclick="app.setView('historial', this)">Historial de Ventas</div>
-            <div class="nav-link" onclick="app.setView('reportes', this)">Reportes y Kpis</div>
-            
+            <div class="nav-link" onclick="app.setView('inventario', this)">Gestión de Productos</div>
+            <div class="nav-link" onclick="app.setView('historial', this)">Historial</div>
             <div style="margin-top: auto;" class="nav-link" onclick="location.reload()">Cerrar Sesión</div>
         </aside>
 
@@ -84,53 +52,30 @@
                 <div id="list-entrantes" class="orders-grid"></div>
             </section>
 
-            <section id="view-historial" class="view-section">
-                <h1 style="margin-bottom: 1.5rem;">Historial de Despachos</h1>
+            <section id="view-inventario" class="view-section">
+                <h1>Gestión de Productos</h1>
+                <div class="card" style="max-width: 500px; margin: 1.5rem 0;">
+                    <input type="text" id="p_nombre" placeholder="Nombre del producto">
+                    <input type="number" id="p_precio" placeholder="Precio (Q)">
+                    <textarea id="p_desc" placeholder="¿Para qué sirve?"></textarea>
+                    <button class="btn-main" onclick="app.addProduct()" style="background: var(--success);">Agregar al Menú</button>
+                </div>
                 <table>
-                    <thead>
-                        <tr>
-                            <th>ID Orden</th>
-                            <th>Cliente</th>
-                            <th>Total</th>
-                            <th>Pago</th>
-                            <th>Asesor</th>
-                            <th>Feedback</th>
-                        </tr>
-                    </thead>
-                    <tbody id="table-historial"></tbody>
+                    <thead><tr><th>Producto</th><th>Descripción</th><th>Precio</th><th>Acción</th></tr></thead>
+                    <tbody id="table-inventario"></tbody>
                 </table>
             </section>
 
-            <section id="view-reportes" class="view-section">
-                <h1 style="margin-bottom: 1.5rem;">Analítica de Ventas</h1>
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-label">Ventas Totales</div>
-                        <div class="stat-val" id="stat-total-money">Q 0.00</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-label">Pedidos Completados</div>
-                        <div class="stat-val" id="stat-count">0</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-label">Ticket Promedio</div>
-                        <div class="stat-val" id="stat-avg">Q 0.00</div>
-                    </div>
-                </div>
-                <h3>Ventas por Asesor</h3>
-                <table style="margin-top: 1rem;">
-                    <thead>
-                        <tr><th>Asesor</th><th>Órdenes</th><th>Total Generado</th></tr>
-                    </thead>
-                    <tbody id="table-report-users"></tbody>
-                </table>
+            <section id="view-historial" class="view-section">
+                <h1>Ventas Completadas</h1>
+                <table id="table-historial"></table>
             </section>
         </main>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, collection, query, onSnapshot, doc, updateDoc, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, collection, query, onSnapshot, doc, updateDoc, addDoc, deleteDoc, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyCUdS0Gzfks0hQJCqTevtz5O2MFlRiHga4",
@@ -138,38 +83,33 @@
             projectId: "tiendaskin-bccba",
             storageBucket: "tiendaskin-bccba.firebasestorage.app",
             messagingSenderId: "280193902268",
-            appId: "1:280193902268:web:743d0e2172641be7a292b9",
-            measurementId: "G-7B4WNF5L7E"
+            appId: "1:280193902268:web:743d0e2172641be7a292b9"
         };
 
         const firebaseApp = initializeApp(firebaseConfig);
         const db = getFirestore(firebaseApp);
 
         window.app = {
-            state: {
-                currentUser: '',
-                allOrders: []
-            },
+            state: { currentUser: '', allOrders: [], products: [] },
 
             login() {
                 const user = document.getElementById('admin_user').value;
-                if(!user) return alert("Ingrese su nombre");
+                if(!user) return alert("Identifíquese");
                 this.state.currentUser = user;
                 document.getElementById('aside-user').innerText = `ASESOR: ${user.toUpperCase()}`;
                 document.getElementById('login-admin').style.display = 'none';
                 document.getElementById('dashboard').style.display = 'flex';
-                this.initListener();
+                this.initListeners();
             },
 
-            // Escuchar Firestore en tiempo real
-            initListener() {
-                const q = query(collection(db, "pedidos"), orderBy("createdAt", "desc"));
-                onSnapshot(q, (snapshot) => {
-                    this.state.allOrders = snapshot.docs.map(doc => ({
-                        docId: doc.id,
-                        ...doc.data()
-                    }));
-                    this.renderAll();
+            initListeners() {
+                onSnapshot(query(collection(db, "pedidos"), orderBy("createdAt", "desc")), (snap) => {
+                    this.state.allOrders = snap.docs.map(d => ({ docId: d.id, ...d.data() }));
+                    this.renderOrders();
+                });
+                onSnapshot(collection(db, "productos"), (snap) => {
+                    this.state.products = snap.docs.map(d => ({ docId: d.id, ...d.data() }));
+                    this.renderInventory();
                 });
             },
 
@@ -178,97 +118,50 @@
                 document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
                 document.getElementById(`view-${viewId}`).classList.add('active');
                 el.classList.add('active');
-                this.renderAll();
+            },
+
+            async addProduct() {
+                const name = document.getElementById('p_nombre').value;
+                const price = parseFloat(document.getElementById('p_precio').value);
+                const desc = document.getElementById('p_desc').value;
+                if(name && price) {
+                    await addDoc(collection(db, "productos"), { name, price, description: desc });
+                    document.getElementById('p_nombre').value = ''; document.getElementById('p_precio').value = ''; document.getElementById('p_desc').value = '';
+                }
+            },
+
+            async deleteProduct(id) {
+                if(confirm("¿Eliminar producto?")) await deleteDoc(doc(db, "productos", id));
             },
 
             async archiveOrder(docId) {
-                try {
-                    const orderRef = doc(db, "pedidos", docId);
-                    await updateDoc(orderRef, {
-                        status: 'completado',
-                        processedBy: this.state.currentUser,
-                        processedAt: new Date().toLocaleString()
-                    });
-                } catch (e) {
-                    console.error("Error al archivar: ", e);
-                }
+                await updateDoc(doc(db, "pedidos", docId), { status: 'completado', processedBy: this.state.currentUser });
             },
 
-            renderAll() {
-                this.renderPending();
-                this.renderHistory();
-                this.renderReports();
+            renderInventory() {
+                const tbody = document.getElementById('table-inventario');
+                tbody.innerHTML = this.state.products.map(p => `
+                    <tr>
+                        <td><strong>${p.name}</strong></td>
+                        <td>${p.description || '-'}</td>
+                        <td>Q${p.price.toFixed(2)}</td>
+                        <td><button onclick="app.deleteProduct('${p.docId}')" style="color:red; border:none; background:none; cursor:pointer;">Eliminar</button></td>
+                    </tr>
+                `).join('');
             },
 
-            renderPending() {
+            renderOrders() {
                 const container = document.getElementById('list-entrantes');
                 const pending = this.state.allOrders.filter(o => o.status === 'pendiente');
-
-                if(pending.length === 0) {
-                    container.innerHTML = `<p style="grid-column:1/-1; color:#94a3b8;">No hay pedidos pendientes...</p>`;
-                    return;
-                }
-
                 container.innerHTML = pending.map(o => `
                     <div class="card">
-                        <div style="display:flex; justify-content:space-between; margin-bottom:1rem;">
-                            <strong style="font-size:0.8rem;">ORDEN #${o.id}</strong>
-                            <span style="font-size:0.7rem; color:var(--success);">NUEVO</span>
-                        </div>
-                        <div style="font-size:0.85rem; margin-bottom:0.5rem;"><strong>${o.name}</strong></div>
-                        <div style="font-size:0.75rem; color:#64748b; margin-bottom:1rem;">${o.addr} - ${o.ref}</div>
-                        <div style="background:#f8fafc; padding:10px; border-radius:6px; margin-bottom:1rem; font-size:0.8rem;">
-                            ${o.items.map(i => `<div>${i.name} - Q${i.price}</div>`).join('')}
-                            <hr style="margin:5px 0; border:0; border-top:1px solid #e2e8f0;">
-                            <strong>Total: Q${o.total.toFixed(2)}</strong>
-                        </div>
-                        <p style="font-size:0.65rem; color:var(--secondary); margin-bottom:1rem;">Pago: ${o.payment}</p>
-                        <button class="btn-main" onclick="app.archiveOrder('${o.docId}')">Archivar y Atender</button>
+                        <p><strong>#${o.id} - ${o.name}</strong></p>
+                        <p style="font-size:0.75rem; color:gray;">${o.addr}</p>
+                        <hr style="margin:10px 0; opacity:0.2;">
+                        <div style="font-size:0.8rem;">${o.items.map(i => `<div>${i.name} - Q${i.price}</div>`).join('')}</div>
+                        <p style="margin-top:10px;"><strong>Total: Q${o.total.toFixed(2)}</strong></p>
+                        <button class="btn-main" onclick="app.archiveOrder('${o.docId}')" style="margin-top:15px; background:var(--success);">Atender</button>
                     </div>
-                `).join('');
-            },
-
-            renderHistory() {
-                const tbody = document.getElementById('table-historial');
-                const history = this.state.allOrders.filter(o => o.status === 'completado');
-
-                tbody.innerHTML = history.map(o => `
-                    <tr>
-                        <td>#${o.id}</td>
-                        <td>${o.name}</td>
-                        <td>Q ${o.total.toFixed(2)}</td>
-                        <td>${o.payment}</td>
-                        <td><span style="color:var(--secondary)">${o.processedBy}</span></td>
-                        <td style="font-size:0.7rem;">
-                            ${o.feedback ? `⭐ ${o.feedback.stars} - ${o.feedback.msg}` : '<span style="color:#ccc">Sin feedback</span>'}
-                        </td>
-                    </tr>
-                `).join('');
-            },
-
-            renderReports() {
-                const history = this.state.allOrders.filter(o => o.status === 'completado');
-                const totalMoney = history.reduce((s, o) => s + o.total, 0);
-                const count = history.length;
-                const avg = count > 0 ? totalMoney / count : 0;
-
-                document.getElementById('stat-total-money').innerText = `Q ${totalMoney.toFixed(2)}`;
-                document.getElementById('stat-count').innerText = count;
-                document.getElementById('stat-avg').innerText = `Q ${avg.toFixed(2)}`;
-
-                const userStats = {};
-                history.forEach(o => {
-                    if(!userStats[o.processedBy]) userStats[o.processedBy] = { count: 0, total: 0 };
-                    userStats[o.processedBy].count++;
-                    userStats[o.processedBy].total += o.total;
-                });
-
-                document.getElementById('table-report-users').innerHTML = Object.keys(userStats).map(u => `
-                    <tr>
-                        <td><strong>${u}</strong></td>
-                        <td>${userStats[u].count} pedidos</td>
-                        <td>Q ${userStats[u].total.toFixed(2)}</td>
-                    </tr>
                 `).join('');
             }
         };
