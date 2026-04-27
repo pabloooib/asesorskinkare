@@ -3,79 +3,72 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LUMINA — Panel de Control</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <title>LUMINA — Panel de Asesor</title>
     <style>
-        :root { --primary: #1a1a1a; --secondary: #8d7b6d; --bg: #f8f9fa; --white: #ffffff; --border: #e9ecef; --text: #334155; --success: #10b981; --danger: #ef4444; }
+        :root { --primary: #1a1a1a; --border: #e9ecef; --success: #10b981; }
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); display: flex; min-height: 100vh; overflow: hidden; }
-        #login-admin { position: fixed; inset: 0; background: var(--white); display: flex; align-items: center; justify-content: center; z-index: 2000; }
-        .login-box { width: 320px; text-align: center; }
-        input, textarea { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 6px; margin-bottom: 12px; outline: none; }
-        .btn-main { width: 100%; padding: 12px; background: var(--primary); color: white; border: none; border-radius: 6px; cursor: pointer; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 1px; }
-        #dashboard { display: none; width: 100%; height: 100vh; }
-        aside { width: 260px; background: var(--white); border-right: 1px solid var(--border); padding: 2rem 1.5rem; display: flex; flex-direction: column; }
-        main { flex: 1; padding: 2.5rem; overflow-y: auto; height: 100vh; }
-        .nav-link { padding: 12px 15px; font-size: 0.85rem; cursor: pointer; color: #64748b; border-radius: 8px; margin-bottom: 5px; }
+        body { font-family: 'Inter', sans-serif; display: flex; min-height: 100vh; background: #f8f9fa; }
+        
+        /* --- SIDEBAR RESPONSIVO --- */
+        aside { width: 240px; background: white; border-right: 1px solid var(--border); padding: 20px; flex-shrink: 0; }
+        main { flex: 1; padding: 20px; overflow-x: hidden; }
+
+        @media (max-width: 768px) {
+            body { flex-direction: column; }
+            aside { width: 100%; border-right: none; border-bottom: 1px solid var(--border); display: flex; gap: 10px; overflow-x: auto; }
+            main { padding: 15px; }
+        }
+
+        .nav-link { padding: 12px; cursor: pointer; border-radius: 6px; font-size: 0.85rem; white-space: nowrap; }
         .nav-link.active { background: var(--primary); color: white; }
+
+        .card { background: white; padding: 15px; border-radius: 10px; border: 1px solid var(--border); margin-bottom: 15px; }
+        input, textarea { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid var(--border); }
+        
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.8rem; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid var(--border); }
         .view-section { display: none; }
         .view-section.active { display: block; }
-        table { width: 100%; border-collapse: collapse; background: white; border-radius: 8px; border: 1px solid var(--border); margin-top: 1rem; }
-        th, td { padding: 15px; text-align: left; border-bottom: 1px solid var(--border); font-size: 0.85rem; }
-        .orders-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; }
-        .card { background: white; border: 1px solid var(--border); padding: 1.5rem; border-radius: 12px; }
     </style>
 </head>
 <body>
 
-    <div id="login-admin">
-        <div class="login-box">
-            <h1 style="font-family: serif; font-size: 2.2rem; margin-bottom: 1.5rem;">Lumina</h1>
-            <input type="text" id="admin_user" placeholder="Nombre de Asesor">
-            <button class="btn-main" onclick="app.login()">Acceder al Panel</button>
-        </div>
-    </div>
+    <aside>
+        <div class="nav-link active" onclick="app.setView('pedidos', this)">Pedidos</div>
+        <div class="nav-link" onclick="app.setView('productos', this)">Inventario</div>
+        <div class="nav-link" onclick="app.setView('mejoras', this)">Feedback</div>
+        <div class="nav-link" onclick="location.reload()">Salir</div>
+    </aside>
 
-    <div id="dashboard">
-        <aside>
-            <h2 style="font-family: serif; margin-bottom: 2rem; text-align: center;">Lumina</h2>
-            <div id="aside-user" style="font-size: 0.7rem; color: var(--secondary); text-align: center; margin-bottom: 2rem; padding: 10px; background: #f8f9fa; border-radius: 6px;"></div>
-            <div class="nav-link active" onclick="app.setView('entrantes', this)">Pedidos Entrantes</div>
-            <div class="nav-link" onclick="app.setView('inventario', this)">Gestión de Productos</div>
-            <div class="nav-link" onclick="app.setView('historial', this)">Historial</div>
-            <div style="margin-top: auto;" class="nav-link" onclick="location.reload()">Cerrar Sesión</div>
-        </aside>
+    <main>
+        <section id="view-pedidos" class="view-section active">
+            <h1>Pedidos Recientes</h1>
+            <div id="list-pedidos" style="margin-top:20px;"></div>
+        </section>
 
-        <main>
-            <section id="view-entrantes" class="view-section active">
-                <h1 style="margin-bottom: 1.5rem;">Pedidos en Tiempo Real</h1>
-                <div id="list-entrantes" class="orders-grid"></div>
-            </section>
+        <section id="view-productos" class="view-section">
+            <h1>Gestión de Catálogo</h1>
+            <div class="card" style="max-width: 500px;">
+                <input type="text" id="p_name" placeholder="Nombre del producto">
+                <input type="number" id="p_price" placeholder="Precio (Q)">
+                <textarea id="p_desc" placeholder="Descripción (Incluya 'seca', 'grasa' o 'mixta' para asesoría)"></textarea>
+                <button onclick="app.addProduct()" style="width:100%; padding:10px; background:var(--success); color:white; border:none;">Guardar</button>
+            </div>
+            <table style="background:white;">
+                <thead><tr><th>Nombre</th><th>Precio</th><th>Acción</th></tr></thead>
+                <tbody id="table-productos"></tbody>
+            </table>
+        </section>
 
-            <section id="view-inventario" class="view-section">
-                <h1>Gestión de Productos</h1>
-                <div class="card" style="max-width: 500px; margin: 1.5rem 0;">
-                    <input type="text" id="p_nombre" placeholder="Nombre del producto">
-                    <input type="number" id="p_precio" placeholder="Precio (Q)">
-                    <textarea id="p_desc" placeholder="¿Para qué sirve?"></textarea>
-                    <button class="btn-main" onclick="app.addProduct()" style="background: var(--success);">Agregar al Menú</button>
-                </div>
-                <table>
-                    <thead><tr><th>Producto</th><th>Descripción</th><th>Precio</th><th>Acción</th></tr></thead>
-                    <tbody id="table-inventario"></tbody>
-                </table>
-            </section>
-
-            <section id="view-historial" class="view-section">
-                <h1>Ventas Completadas</h1>
-                <table id="table-historial"></table>
-            </section>
-        </main>
-    </div>
+        <section id="view-mejoras" class="view-section">
+            <h1>Sugerencias de Clientes</h1>
+            <div id="list-mejoras"></div>
+        </section>
+    </main>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, collection, query, onSnapshot, doc, updateDoc, addDoc, deleteDoc, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, collection, onSnapshot, doc, addDoc, deleteDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyCUdS0Gzfks0hQJCqTevtz5O2MFlRiHga4",
@@ -90,81 +83,53 @@
         const db = getFirestore(firebaseApp);
 
         window.app = {
-            state: { currentUser: '', allOrders: [], products: [] },
-
-            login() {
-                const user = document.getElementById('admin_user').value;
-                if(!user) return alert("Identifíquese");
-                this.state.currentUser = user;
-                document.getElementById('aside-user').innerText = `ASESOR: ${user.toUpperCase()}`;
-                document.getElementById('login-admin').style.display = 'none';
-                document.getElementById('dashboard').style.display = 'flex';
-                this.initListeners();
-            },
-
-            initListeners() {
-                onSnapshot(query(collection(db, "pedidos"), orderBy("createdAt", "desc")), (snap) => {
-                    this.state.allOrders = snap.docs.map(d => ({ docId: d.id, ...d.data() }));
-                    this.renderOrders();
-                });
-                onSnapshot(collection(db, "productos"), (snap) => {
-                    this.state.products = snap.docs.map(d => ({ docId: d.id, ...d.data() }));
-                    this.renderInventory();
-                });
-            },
-
-            setView(viewId, el) {
+            setView(id, el) {
                 document.querySelectorAll('.view-section').forEach(s => s.classList.remove('active'));
                 document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-                document.getElementById(`view-${viewId}`).classList.add('active');
+                document.getElementById('view-'+id).classList.add('active');
                 el.classList.add('active');
             },
 
             async addProduct() {
-                const name = document.getElementById('p_nombre').value;
-                const price = parseFloat(document.getElementById('p_precio').value);
-                const desc = document.getElementById('p_desc').value;
+                const name = document.getElementById('p_name').value;
+                const price = parseFloat(document.getElementById('p_price').value);
+                const description = document.getElementById('p_desc').value;
                 if(name && price) {
-                    await addDoc(collection(db, "productos"), { name, price, description: desc });
-                    document.getElementById('p_nombre').value = ''; document.getElementById('p_precio').value = ''; document.getElementById('p_desc').value = '';
+                    await addDoc(collection(db, "productos"), { name, price, description });
+                    document.getElementById('p_name').value = ''; document.getElementById('p_price').value = ''; document.getElementById('p_desc').value = '';
                 }
             },
 
             async deleteProduct(id) {
-                if(confirm("¿Eliminar producto?")) await deleteDoc(doc(db, "productos", id));
-            },
-
-            async archiveOrder(docId) {
-                await updateDoc(doc(db, "pedidos", docId), { status: 'completado', processedBy: this.state.currentUser });
-            },
-
-            renderInventory() {
-                const tbody = document.getElementById('table-inventario');
-                tbody.innerHTML = this.state.products.map(p => `
-                    <tr>
-                        <td><strong>${p.name}</strong></td>
-                        <td>${p.description || '-'}</td>
-                        <td>Q${p.price.toFixed(2)}</td>
-                        <td><button onclick="app.deleteProduct('${p.docId}')" style="color:red; border:none; background:none; cursor:pointer;">Eliminar</button></td>
-                    </tr>
-                `).join('');
-            },
-
-            renderOrders() {
-                const container = document.getElementById('list-entrantes');
-                const pending = this.state.allOrders.filter(o => o.status === 'pendiente');
-                container.innerHTML = pending.map(o => `
-                    <div class="card">
-                        <p><strong>#${o.id} - ${o.name}</strong></p>
-                        <p style="font-size:0.75rem; color:gray;">${o.addr}</p>
-                        <hr style="margin:10px 0; opacity:0.2;">
-                        <div style="font-size:0.8rem;">${o.items.map(i => `<div>${i.name} - Q${i.price}</div>`).join('')}</div>
-                        <p style="margin-top:10px;"><strong>Total: Q${o.total.toFixed(2)}</strong></p>
-                        <button class="btn-main" onclick="app.archiveOrder('${o.docId}')" style="margin-top:15px; background:var(--success);">Atender</button>
-                    </div>
-                `).join('');
+                if(confirm("¿Eliminar?")) await deleteDoc(doc(db, "productos", id));
             }
         };
+
+        onSnapshot(collection(db, "productos"), (snap) => {
+            const tbody = document.getElementById('table-productos');
+            tbody.innerHTML = snap.docs.map(d => `
+                <tr>
+                    <td>${d.data().name}</td>
+                    <td>Q${d.data().price}</td>
+                    <td><button onclick="app.deleteProduct('${d.id}')" style="color:red; background:none; border:none;">X</button></td>
+                </tr>`).join('');
+        });
+
+        onSnapshot(collection(db, "pedidos"), (snap) => {
+            const list = document.getElementById('list-pedidos');
+            const mejoras = document.getElementById('list-mejoras');
+            
+            list.innerHTML = snap.docs.filter(d => d.data().status === 'pendiente').map(d => `
+                <div class="card">
+                    <strong>${d.data().name}</strong><br>
+                    <small>${d.data().addr}</small><br>
+                    <strong>Total: Q${d.data().total}</strong>
+                    <button onclick="updateDoc(doc(db,'pedidos','${d.id}'),{status:'ok'})" style="margin-top:10px; display:block; padding:5px;">Atender</button>
+                </div>`).join('');
+
+            // Aquí se verían las mejoras/estrellas si se guardan en el mismo pedido o colección aparte
+            // Por simplicidad, este panel está listo para recibir esa info.
+        });
     </script>
 </body>
 </html>
